@@ -16,20 +16,20 @@
 
         <div class="max-w-xl">
           <div class="mb-6 inline-flex rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-md">
-            Plataforma premium para agendamento e gestão clínica
+            Plataforma premium para gestão clínica
           </div>
 
           <h2 class="max-w-lg text-5xl font-semibold leading-[1.02] tracking-[-0.04em] text-slate-950 xl:text-6xl">
-            Cuidado em saúde com experiência moderna, clara e confiável.
+            Um novo padrão de experiência para clínicas modernas.
           </h2>
 
           <p class="mt-6 max-w-lg text-lg leading-8 text-slate-600">
-            Gerencie consultas, organize atendimentos e acompanhe a jornada dos pacientes em uma interface sofisticada, fluida e intuitiva.
+            Centralize autenticação, consultas e gestão administrativa em uma interface elegante, segura e intuitiva.
           </p>
 
           <div class="mt-10 grid gap-4 sm:grid-cols-3">
             <div class="glass-card rounded-3xl p-5">
-              <p class="text-sm text-slate-500">Consultas</p>
+              <p class="text-sm text-slate-500">Atendimentos</p>
               <h3 class="mt-2 text-2xl font-bold tracking-[-0.03em] text-slate-950">+2.4k</h3>
             </div>
             <div class="glass-card rounded-3xl p-5">
@@ -45,8 +45,8 @@
 
         <div class="flex items-center gap-6 text-sm text-slate-500">
           <span>Segurança de acesso</span>
-          <span>Integração inteligente</span>
-          <span>Painel administrativo</span>
+          <span>Experiência premium</span>
+          <span>Gestão inteligente</span>
         </div>
       </div>
     </div>
@@ -61,35 +61,27 @@
             Entrar na plataforma
           </h2>
           <p class="mt-2 text-[15px] leading-7 text-slate-500">
-            Acesse sua conta para gerenciar consultas e acompanhar atendimentos.
+            Acesse sua conta para acompanhar consultas e gerenciar atendimentos.
           </p>
         </div>
 
-        <form class="space-y-5">
+        <form class="space-y-5" @submit.prevent="handleLogin">
           <div>
             <label class="label-ui">E-mail</label>
-            <input class="input-ui" type="email" placeholder="seuemail@clinica.com" />
+            <input v-model="form.email" class="input-ui" type="email" placeholder="seuemail@clinica.com" />
           </div>
 
           <div>
             <label class="label-ui">Senha</label>
-            <input class="input-ui" type="password" placeholder="Digite sua senha" />
+            <input v-model="form.password" class="input-ui" type="password" placeholder="Digite sua senha" />
           </div>
 
-          <div class="flex items-center justify-between text-sm">
-            <label class="flex items-center gap-2 text-slate-500">
-              <input type="checkbox" class="h-4 w-4 rounded border-slate-300" />
-              <span>Manter conectado</span>
-            </label>
-            <a href="#" class="font-semibold text-blue-600">Esqueci minha senha</a>
+          <div v-if="errorMessage" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+            {{ errorMessage }}
           </div>
 
-          <button type="submit" class="button-primary w-full">
-            Entrar
-          </button>
-
-          <button type="button" class="button-secondary w-full">
-            Acessar como visitante
+          <button type="submit" class="button-primary w-full" :disabled="loading">
+            {{ loading ? 'Entrando...' : 'Entrar' }}
           </button>
         </form>
 
@@ -105,4 +97,36 @@
 </template>
 
 <script setup>
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const loading = ref(false)
+const errorMessage = ref('')
+
+const form = reactive({
+  email: '',
+  password: ''
+})
+
+async function handleLogin() {
+  try {
+    loading.value = true
+    errorMessage.value = ''
+
+    await authStore.login({
+      email: form.email,
+      password: form.password
+    })
+
+    router.push('/dashboard')
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || 'Não foi possível realizar o login'
+  } finally {
+    loading.value = false
+  }
+}
 </script>
