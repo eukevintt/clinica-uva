@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const authRoutes = require("./routes/authRoutes");
+const privateRoutes = require("./routes/privateRoutes");
 
 const app = express();
 
@@ -12,5 +14,8 @@ app.get("/health", (req, res) => {
         message: "API da clínica funcionando"
     });
 });
+
+app.use("/auth", authRoutes);
+app.use("/api", privateRoutes);
 
 module.exports = app;
