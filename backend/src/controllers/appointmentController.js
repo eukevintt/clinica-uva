@@ -3,7 +3,7 @@ const Appointment = require("../models/Appointment");
 
 async function createAppointment(req, res) {
     try {
-        const { date, time, cep, weatherAlert } = req.body || {};
+        const { date, time, cep } = req.body || {};
 
         if (!date || !time || !cep) {
             return res.status(400).json({ message: "Data, horário e CEP são obrigatórios" });
@@ -27,6 +27,25 @@ async function createAppointment(req, res) {
             return res.status(400).json({ message: "CEP não encontrado" });
         }
 
+        const city = viaCepResponse.data.localidade;
+        const state = viaCepResponse.data.uf;
+
+        let weatherAlert = "Sem previsão de chuva";
+
+        try {
+            const weatherResponse = await axios.get(
+                `https://api.openweathermap.org/data/2.5/weather?q=${city},BR&appid=${process.env.OPENWEATHER_API_KEY}&lang=pt_br`
+            );
+
+            const weatherMain = weatherResponse.data.weather[0].main.toLowerCase();
+
+            if (weatherMain.includes("rain")) {
+                weatherAlert = "Previsão de chuva";
+            }
+        } catch (error) {
+            weatherAlert = "Não foi possível obter clima";
+        }
+
         const appointment = await Appointment.create({
             patient: req.user.id,
             date,
@@ -34,9 +53,9 @@ async function createAppointment(req, res) {
             cep: normalizedCep,
             street: viaCepResponse.data.logradouro || "",
             neighborhood: viaCepResponse.data.bairro || "",
-            city: viaCepResponse.data.localidade || "",
-            state: viaCepResponse.data.uf || "",
-            weatherAlert: weatherAlert || ""
+            city,
+            state,
+            weatherAlert
         });
 
         return res.status(201).json({
