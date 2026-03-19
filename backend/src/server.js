@@ -1,17 +1,16 @@
 const dotenv = require("dotenv");
-const app = require("./app");
-const connectDB = require("./config/db");
-
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const app = require("../src/app");
+const connectDB = require("../src/config/db");
 
-async function startServer() {
-    await connectDB();
+let isConnected = false;
 
-    app.listen(PORT, () => {
-        console.log(`Servidor rodando na porta ${PORT}`);
-    });
-}
+module.exports = async (req, res) => {
+    if (!isConnected) {
+        await connectDB();
+        isConnected = true;
+    }
 
-startServer();
+    return app(req, res);
+};
