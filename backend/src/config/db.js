@@ -1,15 +1,13 @@
 const mongoose = require("mongoose");
 
 async function connectDB() {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            dbName: 'clinica_db'
-        })
-        console.log("MongoDB conectado com sucesso");
-    } catch (error) {
-        console.error("Erro ao conectar no MongoDB:", error.message);
-        process.exit(1);
+    if (mongoose.connection.readyState === 1) {
+        return;
     }
+
+    await mongoose.connect(process.env.MONGODB_URI, {
+        dbName: "clinica_db"
+    });
 }
 
 module.exports = connectDB;
