@@ -2,7 +2,7 @@
 
 ## 🔗 Links
 
-* 🌐 Frontend: https://clinica-uva.vercel.app/login
+* 🌐 Frontend: https://clinica-uva.vercel.app
 * 🔧 Backend: https://clinica-uva-8rxj.vercel.app/health
 
 ---
